@@ -15,9 +15,10 @@ lazy val root = project.in(file("."))
   .settings(settings)
   .settings(
     libraryDependencies ++= Seq(
-      "org.slf4j"     %  "slf4j-api" % "1.7.26",
-      "org.typelevel" %% "cats-core" % "2.1.1",
-      "org.scalatest" %% "scalatest" % "3.0.8" % "test"
+      "org.slf4j"         %  "slf4j-api" % "1.7.26",
+      "org.typelevel"     %% "cats-core" % "2.1.1",
+      "com.typesafe.play" %% "play-json" % "2.8.0",
+      "org.scalatest"     %% "scalatest" % "3.0.8" % "test"
    )
  )
 
@@ -36,7 +37,7 @@ lazy val compilerOptions = Seq(
 //  "-language:existentials",
   "-language:higherKinds",
 //  "-language:implicitConversions",
-//  "-language:postfixOps",
+  "-language:postfixOps",
   "-deprecation"
 )
 
