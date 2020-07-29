@@ -7,18 +7,16 @@ import cats.data.{
   Validated,
   ValidatedNel
 }
+import Validated.{cond,condNel}
 
 import cats.Traverse
+import cats.syntax.traverse._
+
 
 
 object Validation
 {
   self =>
-
-  import Validated.{cond,condNel}
-
-  import cats.syntax.validated._
-  import cats.implicits._
 
 
   type Validator[E,T] = T => ValidatedNel[E,T] 
@@ -64,7 +62,7 @@ object Validation
 
   implicit class TraversableOps[T, C[T]: Traverse](val ts: C[T])
   {
-    def validate[E](implicit v: Validator[E,T]) = ts.traverse(v)   
+    def validateEach[E](implicit v: Validator[E,T]) = ts.traverse(v)   
   }
 
 
@@ -72,12 +70,21 @@ object Validation
   implicit class OptionOps[T](val opt: Option[T]) extends AnyVal
   {
 
+    def mustBeDefined =
+      condNel(opt.isDefined,opt.get,"Option must be defined")
+
+    def mustNotBeDefined =
+      condNel(!opt.isDefined,opt.get,"Option must not be defined")
+
     def defined =
       condNel(opt.isDefined,opt.get,"Option undefined")
 
     def ? = defined
 
     def ifUndefined[E](err: => E) = (opt ?) otherwise err 
+
+//    def ifDefined[E](v: Validator[E,T]): ValidatedNel[E,T] = 
+//      opt.fold()() 
   }
 
 
