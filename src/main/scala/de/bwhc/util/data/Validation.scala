@@ -11,6 +11,7 @@ import Validated.{cond,condNel}
 
 import cats.Traverse
 import cats.syntax.traverse._
+//import cats.syntax.validated._
 
 
 
@@ -76,15 +77,15 @@ object Validation
     def mustNotBeDefined =
       condNel(!opt.isDefined,opt.get,"Option must not be defined")
 
-    def defined =
-      condNel(opt.isDefined,opt.get,"Option undefined")
+//    def defined =
+//      condNel(opt.isDefined,opt.get,"Option undefined")
 
-    def ? = defined
+//    def ? = defined
+
+    def ? = condNel(opt.isDefined,opt.get,"Option undefined")
 
     def ifUndefined[E](err: => E) = (opt ?) otherwise err 
 
-//    def ifDefined[E](v: Validator[E,T]): ValidatedNel[E,T] = 
-//      opt.fold()() 
   }
 
 
@@ -112,6 +113,8 @@ object Validation
     // Ordering Ops
     //-------------------------------------------------------------------------
 
+    def mustBe(v: Validator[String,T]) = v(t)
+
     def mustBe(u: T) =
       condNel(t == u, t, s"$t not equal to $u")
 
@@ -133,6 +136,74 @@ object Validation
 
 
   }
+
+
+  object matchers
+  {
+
+    def be[T](v: Validator[String,T]) = v
+
+//    def defined[T]: Validator[String,Option[T]] =
+//      opt => condNel(opt.isDefined,opt,"Option undefined")
+    def defined[T] =
+      (opt: Option[T]) => condNel(opt.isDefined,opt,"Option undefined")
+
+    def in[T](ts: Iterable[T]) =
+      (t: T) => (ts.find(_ == t) ?) otherwise s"$t not in Iterable collection"
+
+    def in[T](interval: Interval[T]) = 
+      (t: T) => condNel(interval contains t, t, s"$t not in $interval")
+
+  }
+
+
+
+/*
+  case class ValidatorBuilder[T](t: T) extends AnyVal
+  {
+//    def be = BeValidator(t)
+  }
+
+
+    case class EqualityValidator[T](t: T) extends AnyVal
+    {
+
+      def apply(u: T) =       
+        condNel(t == u, t, s"$t not equal to $u")
+
+    }
+
+
+    case class BeValidator[T](t: T) extends AnyVal
+    {
+
+      def less(u: T)(implicit o: Ordering[T]) =
+        condNel(o.lt(t,u), t, s"$t not less than $u")
+ 
+ 
+      def lessOrEq(u: T)(implicit o: Ordering[T]) =
+        condNel(o.lteq(t,u), t, s"$t not less than or equal to $u")
+ 
+ 
+      def greater(u: T)(implicit o: Ordering[T]) =
+        condNel(o.gt(t,u), t, s"$t not greater than $u")
+ 
+ 
+      def greaterOrEq(u: T)(implicit o: Ordering[T]) =
+        condNel(o.gteq(t,u), t, s"$t not greater than or equal to $u")
+
+
+      def in(interval: Interval[T]) =
+        condNel(interval contains t, t, s"$t not in $interval")
+      
+
+      def in(ts: Iterable[T]) =
+        (ts.find(_ == t) ?) otherwise s"$t not in Iterable collection"
+
+
+    }
+
+*/
 
 
 }
