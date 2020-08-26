@@ -4,6 +4,9 @@ package de.bwhc.util.data
 
 import java.time.temporal.Temporal
 
+
+import scala.util.matching.Regex
+
 import cats.data.{
   NonEmptyList,
   Validated,
@@ -83,7 +86,7 @@ object Validation
   object dsl 
   {
 
-    @annotation.implicitNotFound("${T} is not of type Option[_]")
+    @annotation.implicitNotFound("${T} is not of type Option[X]")
     sealed trait IsOption[T]
     object IsOption
     {
@@ -93,9 +96,24 @@ object Validation
     }
 
 
+    @annotation.implicitNotFound("${T} is not a sub-type of Iterable[X]")
+    sealed trait IsIterable[T]
+    object IsIterable
+    {
+      def apply[T](implicit is: IsIterable[T]) = is
+
+      implicit def iterable[T, C[X] <: Iterable[X]] = new IsIterable[C[T]]{} 
+    }
+
+
     sealed trait Defined
 
     val defined = new Defined{}
+
+    sealed trait Empty
+
+    val empty = new Empty{}
+
 
 
     def be[T](t: T) = equal(t)
@@ -105,6 +123,19 @@ object Validation
 
 
     def be[T](v: Validator[_,T]) = v 
+
+
+    def not[T](v: Validator[_,T]) = 
+      (t: T) => condNel(v(t).isInvalid, t, s"$v failed for $t") 
+
+
+
+    def matchRegex(regex: Regex) =
+      (s: String) => condNel(regex matches s, s, s"$s doesn't match $regex")
+
+    def matchRegex(regex: String): Validator[String,String] =
+      matchRegex(regex.r)
+
 
 
     def contain[T](t: T) =
@@ -141,22 +172,46 @@ object Validation
 
 
 
-
     case class MustBe[T](t: T) extends AnyVal
     {
 
       def apply(d: Defined)(implicit opt: IsOption[T]) = 
         condNel(t.asInstanceOf[Option[Any]].isDefined, t, s"$t is not defined")
 
+      def apply(e: Empty)(implicit it: IsIterable[T]) = 
+        condNel(t.asInstanceOf[Iterable[Any]].isEmpty, t, s"$t is not empty")
+
     }
 
+/*
+    case class Must[T](t: T) extends AnyVal
+    {
+
+      def apply(v: Validator[_,T]) = v(t)  
+
+
+    }
+
+    case class Be[T](t: T) extends AnyVal
+    {
+
+      def apply(u: T) =
+        condNel(t == u, t, s"$t not equal to $u")
+
+      def apply(v: Validator[_,T]) = v(t)
+
+      def apply(d: Defined)(implicit opt: IsOption[T]) = 
+        condNel(t.asInstanceOf[Option[Any]].isDefined, t, s"$t is not defined")
+
+    }
+*/
 
     implicit class OptionSyntax[T](val t: Option[T]) extends AnyVal
     {
 
-      def mustBe = MustBe(t)
-
+      def mustBe   = MustBe(t)
       def shouldBe = MustBe(t)
+      def couldBe = MustBe(t)
 
     }
 
@@ -166,12 +221,18 @@ object Validation
 
       def must(v: Validator[_,T]) = v(t)
 
+      def must = MustBe(t)
+
+
       def mustNot(v: Validator[_,T]) = 
         condNel(v(t).isInvalid, t, s"$v failed for $t") 
 
 
       def should(v: Validator[_,T]) = t must v
+
       def shouldNot(v: Validator[_,T]) = t mustNot v
+
+      def could(v: Validator[_,T]) = t must v
 
     }
 
