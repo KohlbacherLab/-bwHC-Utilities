@@ -106,9 +106,21 @@ object Validation
     }
 
 
+/*
+    val defined: Validator[String,Option[Any]] =
+      t => condNel(t.isDefined, t, s"$t is not defined")
+
+    val undefined: Validator[String,Option[Any]] =
+      t => condNel(t.isEmpty, t, s"$t is defined")
+*/
+
     sealed trait Defined
 
     val defined = new Defined{}
+
+    sealed trait Undefined
+
+    val undefined = new Undefined{}
 
     sealed trait Empty
 
@@ -177,6 +189,9 @@ object Validation
 
       def apply(d: Defined)(implicit opt: IsOption[T]) = 
         condNel(t.asInstanceOf[Option[Any]].isDefined, t, s"$t is not defined")
+
+      def apply(ud: Undefined)(implicit opt: IsOption[T]) = 
+        condNel(!t.asInstanceOf[Option[Any]].isDefined, t, s"$t must be undefined")
 
       def apply(e: Empty)(implicit it: IsIterable[T]) = 
         condNel(t.asInstanceOf[Iterable[Any]].isEmpty, t, s"$t is not empty")
