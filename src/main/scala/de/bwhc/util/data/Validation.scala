@@ -16,6 +16,7 @@ import Validated.{cond,condNel}
 
 import cats.Traverse
 import cats.syntax.traverse._
+import cats.syntax.validated._
 
 
 
@@ -72,6 +73,15 @@ object Validation
 
     def ifUndefined[E](err: => E) = condNel(opt.isDefined,opt.get,err)
 
+/*
+    def ifDefinedValidate[E](v: Validator[E,T])(t: => T) =
+      opt.map(v)
+        .getOrElse(t.validNel[E])
+
+    def validateIfDefined[E](t: => T)(implicit v: Validator[E,T]) =
+      opt.map(v)
+        .getOrElse(t.validNel[E])
+*/
   }
 
 
