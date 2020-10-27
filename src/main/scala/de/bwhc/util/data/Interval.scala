@@ -50,7 +50,7 @@ object Interval
 
   case class Open[T: Ordering](l: T, r: T) extends Interval[T]
   {
-    def contains(t: T): Boolean = (l <= t && t <= r)
+    def contains(t: T): Boolean = (l < t && t < r)
     override def toString = s"($l,$r)"
   }
 
