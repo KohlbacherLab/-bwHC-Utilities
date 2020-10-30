@@ -15,11 +15,13 @@ lazy val root = project.in(file("."))
   .settings(settings)
   .settings(
     libraryDependencies ++= Seq(
-      "org.slf4j"         %  "slf4j-api" % "1.7.26",
-      "org.typelevel"     %% "cats-core" % "2.1.1",
-      "com.typesafe.play" %% "play-json" % "2.8.0",
-      "com.chuusai"       %% "shapeless" % "2.3.3",
-      "org.scalatest"     %% "scalatest" % "3.0.8" % "test"
+      "org.scalatest"          %% "scalatest"                   % "3.0.8" % Test,
+      "org.slf4j"              %  "slf4j-api"                   % "1.7.26",
+      "org.typelevel"          %% "cats-core"                   % "2.1.1",
+      "com.typesafe.play"      %% "play-json"                   % "2.8.0",
+      "com.chuusai"            %% "shapeless"                   % "2.3.3",
+      "com.github.andyglow"    %% "scala-jsonschema"            % "0.5.0",
+      "com.github.andyglow"    %% "scala-jsonschema-play-json"  % "0.5.0"
    )
  )
 
