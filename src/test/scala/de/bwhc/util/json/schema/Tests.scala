@@ -3,7 +3,10 @@ package de.bwhc.util.json.schema
 
 import org.scalatest.flatspec.AnyFlatSpec
 
+import cats.data.NonEmptyList
+
 import json._
+import com.github.andyglow.jsonschema.CatsSupport._
 
 import play.api.libs.json.Json.prettyPrint
 
@@ -28,6 +31,13 @@ final case class Bar
 )
 
 
+final case class NelWrapper
+( 
+  strings: NonEmptyList[String],
+  foos: NonEmptyList[Foo.Value]
+)
+
+
 class Tests extends AnyFlatSpec
 {
 
@@ -37,12 +47,20 @@ class Tests extends AnyFlatSpec
   implicit val bumpSchema = Json.schema[Bop]("Bop")
   implicit val barSchema  = Json.schema[Bar]
 
+  implicit val nelWrapperSchema = Json.schema[NelWrapper]
 
+/*
   "Bar JSON Schema" should "be valid" in {
 
     println(prettyPrint(JsValueSchema[Bar]))
 
   }
+*/
 
+  "NelWrapper JSON Schema" should "be valid" in {
+
+    println(prettyPrint(JsValueSchema[NelWrapper]))
+
+  }
 
 }

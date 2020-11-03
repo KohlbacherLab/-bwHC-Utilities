@@ -9,6 +9,8 @@ import com.github.andyglow.jsonschema.AsPlay._
 import json.schema.Version._
 import play.api.libs.json.{Json => PlayJson, JsValue}
 
+import cats.data.NonEmptyList
+
 
 package object schema {
 
@@ -37,25 +39,24 @@ package object schema {
     enumSchema(w.value)
 
 
-  object workarounds
-  { 
-
-  // Introduced as workaround for the fact that in derivation for Schema[Set[T]],
-  // Schema[T] is NOT included in definitions
-  implicit def setSchema[T](
-    implicit tSch: Schema[T]
-  ): Schema[Set[T]] =
-    tSch.refName
-      .map(d => Json.schema[Array[T]](s"Set[$d]"))
-      .getOrElse(Json.schema[Array[T]])
-      .asInstanceOf[Schema[Set[T]]]
-      .withValidation(Validation.uniqueItems := true)
-
-  }
-
-
   def const[T](t: T): Schema[T] =
     Schema.enum(Set(Value.str(t.toString)))
 
+
+  object workarounds
+  { 
+
+    // Introduced as workaround for the fact that in derivation for Schema[Set[T]],
+    // Schema[T] is NOT included in definitions
+    implicit def setSchema[T](
+      implicit tSch: Schema[T]
+    ): Schema[Set[T]] =
+      tSch.refName
+        .map(d => Json.schema[Array[T]](s"Set[$d]"))
+        .getOrElse(Json.schema[Array[T]])
+        .asInstanceOf[Schema[Set[T]]]
+        .withValidation(Validation.uniqueItems := true)
+
+  }
 
 }
