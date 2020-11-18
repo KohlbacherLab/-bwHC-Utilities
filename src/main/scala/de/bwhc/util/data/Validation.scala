@@ -28,6 +28,10 @@ object Validation
   type Validator[E,T] = T => ValidatedNel[E,T] 
 
 
+  def validate[T,E](t: T)(implicit v: Validator[E,T]) =
+    v.apply(t)
+
+
   def attempt[T](t: => T): ValidatedNel[Throwable,T] =
     Validated.catchNonFatal(t).toValidatedNel
 
