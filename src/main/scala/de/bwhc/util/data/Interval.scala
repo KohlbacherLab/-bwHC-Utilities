@@ -12,6 +12,66 @@ sealed abstract class Interval[T: Ordering]
   override def toString: String
 }
 
+import Interval._
+
+case class ClosedInterval[T: Ordering](l: T, r: T) extends Interval[T]
+{
+  def contains(t: T): Boolean = (l <= t && t <= r)
+  override def toString = s"[$l,$r]"
+}
+object ClosedInterval
+{
+
+  def apply[T: Ordering](lr: (T,T)): ClosedInterval[T] =
+    ClosedInterval(lr._1,lr._2)
+
+  implicit def format[T: Ordering: Format] =
+    Json.format[ClosedInterval[T]]
+}
+
+case class LeftOpenInterval[T: Ordering](l: T, r: T) extends Interval[T]
+{
+  def contains(t: T): Boolean = (l < t && t <= r)
+  override def toString = s"($l,$r]"
+}
+object LeftOpenInterval
+{
+  def apply[T: Ordering](lr: (T,T)): LeftOpenInterval[T] =
+    LeftOpenInterval(lr._1,lr._2)
+
+  implicit def format[T: Ordering: Format] =
+    Json.format[LeftOpenInterval[T]]
+}
+
+case class RightOpenInterval[T: Ordering](l: T, r: T) extends Interval[T]
+{
+  def apply[T: Ordering](lr: (T,T)): RightOpenInterval[T] =
+    RightOpenInterval(lr._1,lr._2)
+
+  def contains(t: T): Boolean = (l <= t && t < r)
+  override def toString = s"[$l,$r)"
+}
+object RightOpenInterval
+{
+  implicit def format[T: Ordering: Format] =
+    Json.format[RightOpenInterval[T]]
+}
+
+case class OpenInterval[T: Ordering](l: T, r: T) extends Interval[T]
+{
+  def apply[T: Ordering](lr: (T,T)): OpenInterval[T] =
+    OpenInterval(lr._1,lr._2)
+
+  def contains(t: T): Boolean = (l < t && t < r)
+  override def toString = s"($l,$r)"
+}
+object OpenInterval
+{
+  implicit def format[T: Ordering: Format] =
+    Json.format[OpenInterval[T]]
+}
+
+
 object Interval
 {
 
@@ -26,10 +86,11 @@ object Interval
 
   implicit class NumericOps[T](val t: T) extends AnyVal
   {
-    def +-(m: T)(implicit num: Numeric[T]) = Closed(num.minus(t,m),num.plus(t,m))
+    def +-(m: T)(implicit num: Numeric[T]) =
+      ClosedInterval(num.minus(t,m),num.plus(t,m))
   }
 
-
+/*
   case class Closed[T: Ordering](l: T, r: T) extends Interval[T]
   {
     def contains(t: T): Boolean = (l <= t && t <= r)
@@ -53,7 +114,7 @@ object Interval
     def contains(t: T): Boolean = (l < t && t < r)
     override def toString = s"($l,$r)"
   }
-
+*/
 
   implicit class IntervalOps[T](val t: T) extends AnyVal
   {
@@ -61,7 +122,7 @@ object Interval
     def ∈ (interval: Interval[T]) = t isIn interval
   }
 
-
+/*
   implicit def formatClosed[T: Ordering: Format] =
     Json.format[Closed[T]]
 
@@ -73,7 +134,8 @@ object Interval
 
   implicit def formatRightOpen[T: Ordering: Format] =
     Json.format[RightOpen[T]]
-
+*/
 
 }
+
 
