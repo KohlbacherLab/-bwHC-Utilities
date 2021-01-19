@@ -1,6 +1,8 @@
 package de.bwhc.util
 
 
+import scala.util.Either
+
 
 package object json
 {
@@ -22,6 +24,16 @@ package object json
         .map(NonEmptyList.fromListUnsafe),
       writes.contramap(_.toList)
     )
+
+
+  implicit def writesEither[T: Writes, U: Writes]: Writes[Either[T,U]] =
+    Writes(
+      _.fold(
+        Json.toJson(_),
+        Json.toJson(_)
+      )
+    )
+
 
 
   object hlists {
