@@ -217,9 +217,15 @@ object Validation
 
       def could[E](v: Validator[E,T]) = t must v
 
+      def mustBe   = MustBe(t)
+
+      def shouldBe = MustBe(t)
+
+      def couldBe  = MustBe(t)
+
     }
 
-
+/*
     implicit class IterableSyntax[T, C[X] <: Iterable[X]](val ts: C[T]) extends AnyVal
     {
 
@@ -228,7 +234,7 @@ object Validation
       def should[E](v: Validator[E,C[T]]) = v(ts.asInstanceOf[C[T]])
 
     }
-
+*/
 
   }
   
