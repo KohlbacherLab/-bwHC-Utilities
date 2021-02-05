@@ -1,7 +1,7 @@
 package de.bwhc.util
 
 
-import scala.util.Either
+import scala.util.{Either, Left, Right}
 
 
 package object json
@@ -26,6 +26,7 @@ package object json
     )
 
 
+
   implicit def writesEither[T: Writes, U: Writes]: Writes[Either[T,U]] =
     Writes(
       _.fold(
@@ -34,6 +35,21 @@ package object json
       )
     )
 
+
+  implicit def formatEither[T: Format, U: Format]: Format[Either[T,U]] =
+    Format(
+      Reads(
+        js =>
+          js.validate[U].map(Right[T,U](_))
+            .orElse(js.validate[T].map(Left[T,U](_)))
+      ),
+      Writes(
+        _.fold(
+          Json.toJson(_),
+          Json.toJson(_)
+        )
+      )
+    )
 
 
   object hlists {
