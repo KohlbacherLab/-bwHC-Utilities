@@ -2,6 +2,7 @@ package de.bwhc.util.json
 
 
 import java.net.URI
+import java.time.{LocalDate,YearMonth}
 
 import json._
 import com.github.andyglow.json.Value
@@ -37,6 +38,10 @@ package object schema {
     implicit w: shapeless.Witness.Aux[E]
   ): Schema[E#Value] =
     enumSchema(w.value)
+
+
+  implicit val yearMonthSchema: Schema[YearMonth] = 
+    Json.schema[LocalDate].asInstanceOf[Schema[YearMonth]]
 
 
   def const[T](t: T): Schema[T] =

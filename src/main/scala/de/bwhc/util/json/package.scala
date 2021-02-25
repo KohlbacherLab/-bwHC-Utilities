@@ -52,6 +52,31 @@ package object json
     )
 
 
+
+  object time
+  {
+
+    import java.time.YearMonth
+    import java.time.format.DateTimeFormatter
+
+    private val yyyyMM = DateTimeFormatter.ofPattern("yyyy-MM")
+ 
+ 
+    implicit val formatYearMonth: Format[YearMonth] =
+      Format(
+        Reads(
+          js =>
+            js.validate[String]
+              .map(YearMonth.parse(_,yyyyMM))
+        ),
+        Writes(
+          d => JsString(yyyyMM.format(d))
+        )
+      )
+
+  }
+
+
   object hlists {
 
     object labelled {
