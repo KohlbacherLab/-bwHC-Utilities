@@ -1,7 +1,7 @@
 package de.bwhc.util
 
 
-import scala.util.{Either, Left, Right}
+import scala.util.{Either, Left, Right, Try}
 
 
 package object json
@@ -10,7 +10,6 @@ package object json
   import play.api.libs.json._
 
   import cats.data.NonEmptyList
-
 
 
   implicit def formatNel[T: Reads: Writes](
@@ -56,8 +55,11 @@ package object json
   object time
   {
 
-    import java.time.YearMonth
+    import java.time.{LocalDate,YearMonth}
     import java.time.format.DateTimeFormatter
+
+    import cats.syntax.either._
+
 
     private val yyyyMM = DateTimeFormatter.ofPattern("yyyy-MM")
  
@@ -66,8 +68,40 @@ package object json
       Format(
         Reads(
           js =>
-            js.validate[String]
-              .map(YearMonth.parse(_,yyyyMM))
+            for {
+              s <- js.validate[String]
+              result <-
+                Try { 
+                  YearMonth.parse(s,yyyyMM)
+                }
+                .recoverWith {
+                  case t =>
+                    Try(LocalDate.parse(s,DateTimeFormatter.ISO_LOCAL_DATE))
+                      .map(d => YearMonth.of(d.getYear,d.getMonth))
+                }
+                .fold(
+                  t => JsError(s"Invalid Year-Month value $s; expected format YYYY-MM (or YYYY-MM-DD as fallback)"),
+                  JsSuccess(_)
+                )
+            } yield result
+/*
+             for {
+               s <- js.validate[String]
+               result <-
+                 Either.catchNonFatal(YearMonth.parse(s,yyyyMM))
+                   .fold(
+                     t =>
+                       Either.catchNonFatal(LocalDate.parse(s,DateTimeFormatter.ISO_LOCAL_DATE))
+                         .fold(
+                           t => JsError(s"Invalid Year-Month value $s; expected format YYYY-MM (or YYYY-MM-DD as fallback)"),
+                           d => JsSuccess(YearMonth.of(d.getYear,d.getMonth))
+                         ),
+                     JsSuccess(_)
+                   )
+             } yield result
+*/
+//            js.validate[String]
+//              .map(YearMonth.parse(_,yyyyMM))
         ),
         Writes(
           d => JsString(yyyyMM.format(d))
