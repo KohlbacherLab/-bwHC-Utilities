@@ -32,6 +32,10 @@ object Validation
     v.apply(t)
 
 
+  def validateEach[T,E,C[T]: Traverse](ts: C[T])(implicit v: Validator[E,T]) =
+    ts.traverse(v)   
+
+
   def attempt[T](t: => T): ValidatedNel[Throwable,T] =
     Validated.catchNonFatal(t).toValidatedNel
 
@@ -169,6 +173,13 @@ object Validation
       (t: T) => condNel(ord.gt(t,u), t, s"$t not greater than $u")
 
     def after[T](u: T)(implicit ord: Ordering[T]) = greaterThan(u)
+
+
+    def positive[T](implicit num: Numeric[T]) =
+      greaterThan(num.zero)
+
+    def negative[T](implicit num: Numeric[T]) =
+      lessThan(num.zero)
 
 
 
