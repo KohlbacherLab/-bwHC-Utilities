@@ -236,17 +236,6 @@ object Validation
 
     }
 
-/*
-    implicit class IterableSyntax[T, C[X] <: Iterable[X]](val ts: C[T]) extends AnyVal
-    {
-
-      def must[E](v: Validator[E,C[T]]) = v(ts.asInstanceOf[C[T]])
-
-      def should[E](v: Validator[E,C[T]]) = v(ts.asInstanceOf[C[T]])
-
-    }
-*/
-
   }
   
 
