@@ -38,6 +38,7 @@ final case class NelWrapper
 )
 
 
+/*
 class Tests extends AnyFlatSpec
 {
 
@@ -49,13 +50,11 @@ class Tests extends AnyFlatSpec
 
   implicit val nelWrapperSchema = Json.schema[NelWrapper]
 
-/*
   "Bar JSON Schema" should "be valid" in {
 
     println(prettyPrint(JsValueSchema[Bar]))
 
   }
-*/
 
   "NelWrapper JSON Schema" should "be valid" in {
 
@@ -64,3 +63,4 @@ class Tests extends AnyFlatSpec
   }
 
 }
+*/
