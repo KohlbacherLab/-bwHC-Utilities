@@ -75,6 +75,26 @@ object Validation
   }
 
 
+  class OptionValidation[T](val opt: Option[T]) extends AnyVal
+  {
+
+    def apply[E](v: Validator[E,T]): ValidatedNel[E,Option[T]] =
+      opt match {
+        case Some(t) => v(t).map(Some(_))
+        case None    => None.validNel[E]  
+      }
+
+    def ensure[E](v: Validator[E,T]) = apply(v)
+
+    def ensureThat[E](v: Validator[E,T]) = apply(v)
+  }
+
+
+  def ifDefined[T](opt: Option[T]) =
+    new OptionValidation(opt)
+
+
+
   implicit class ValueOps[T](val t: T) extends AnyVal
   {
     def validate[E](implicit v: Validator[E,T]): ValidatedNel[E,T] = v(t)
@@ -233,6 +253,8 @@ object Validation
       def shouldBe = MustBe(t)
 
       def couldBe  = MustBe(t)
+
+      def is[E](v: Validator[E,T]) = v(t)
 
     }
 
