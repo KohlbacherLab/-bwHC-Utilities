@@ -40,6 +40,16 @@ object Validation
     Validated.catchNonFatal(t).toValidatedNel
 
 
+  implicit class ValidatorOps[E,T](val v: Validator[E,T]) extends AnyVal
+  {
+    def or(other: Validator[E,T]): Validator[E,T] =
+      t => v(t).orElse(other(t))  
+
+    def and(other: Validator[E,T]): Validator[E,T] =
+      t => v(t).andThen(other)  
+  }
+
+
 
   implicit class ValidatedOps[E,T](val v: ValidatedNel[E,T]) extends AnyVal
   {
