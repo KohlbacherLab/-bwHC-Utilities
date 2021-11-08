@@ -36,6 +36,36 @@ abstract class SPILoader[S <: ServiceProviderInterface]
 
 
 
+trait ServiceProviderInterfaceF
+{
+  type Service[F[_]]
+
+  def getInstance[F[_]]: Service[F]
+}
+
+
+trait EnvSPI[S[F[_]]] extends ServiceProviderInterfaceF
+{
+  type Service[M[_]] = S[M]
+}
+
+
+abstract class SPILoaderF[S <: ServiceProviderInterfaceF]
+(
+  val spi: Class[S]
+)
+{
+
+  def getInstance[F[_]]: Try[S#Service[F]] =
+    Try {
+      ServiceLoader.load(spi)
+        .iterator
+        .next
+        .getInstance[F]
+    }
+
+}
+
 /*
 trait EnvServiceProviderInterface
 {

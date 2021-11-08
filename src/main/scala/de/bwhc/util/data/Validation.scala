@@ -240,12 +240,12 @@ object Validation
     }
 
 
-    implicit class ValueSyntax[T](val t: T) extends AnyVal
+    implicit class SubjectSyntax[T](val t: T) extends AnyVal
     {
 
       def must[E](v: Validator[E,T]) = v(t)
 
-      def must = MustBe(t)
+//      def must = MustBe(t)
 
 
       def mustNot[E](v: Validator[E,T]) = 
@@ -267,6 +267,18 @@ object Validation
       def is[E](v: Validator[E,T]) = v(t)
 
     }
+
+
+    final case class TraversableSubjectSyntax[T,C[T]: Traverse] private (val ts: C[T])
+    {
+
+      def must[E](v: Validator[E,T]) = ts.traverse(v)
+
+      def are[E](v: Validator[E,T]) = ts.traverse(v)
+
+    }
+
+    def all[T,C[T]: Traverse](ts: C[T]) = TraversableSubjectSyntax(ts)
 
   }
   
