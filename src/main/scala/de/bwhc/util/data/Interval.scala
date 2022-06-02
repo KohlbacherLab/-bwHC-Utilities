@@ -7,7 +7,7 @@ import play.api.libs.json.{
 }
 
 
-sealed abstract class Interval[T: Numeric]
+sealed abstract class Interval[T: Ordering]
 {
   def contains(t: T): Boolean
   def ∋ (t: T) = contains(t)
@@ -17,22 +17,22 @@ sealed abstract class Interval[T: Numeric]
 import Interval._
 
 
-case class OpenInterval[T: Numeric](min: T, max: T) extends Interval[T]
+case class OpenInterval[T: Ordering](min: T, max: T) extends Interval[T]
 {
   def contains(t: T): Boolean = (min < t && t < max)
   override def toString = s"($min,$max)"
 }
 object OpenInterval
 {
-  def apply[T: Numeric](minMax: (T,T)): OpenInterval[T] =
+  def apply[T: Ordering](minMax: (T,T)): OpenInterval[T] =
     OpenInterval(minMax._1,minMax._2)
 
-  implicit def format[T: Numeric: Format] =
+  implicit def format[T: Ordering: Format] =
     Json.format[OpenInterval[T]]
 }
 
 
-case class ClosedInterval[T: Numeric](min: T, max: T) extends Interval[T]
+case class ClosedInterval[T: Ordering](min: T, max: T) extends Interval[T]
 {
   def contains(t: T): Boolean = (min <= t && t <= max)
   override def toString = s"[$min,$max]"
@@ -40,100 +40,100 @@ case class ClosedInterval[T: Numeric](min: T, max: T) extends Interval[T]
 object ClosedInterval
 {
 
-  def apply[T: Numeric](minMax: (T,T)): ClosedInterval[T] =
+  def apply[T: Ordering](minMax: (T,T)): ClosedInterval[T] =
     ClosedInterval(minMax._1,minMax._2)
 
-  implicit def format[T: Numeric: Format] =
+  implicit def format[T: Ordering: Format] =
     Json.format[ClosedInterval[T]]
 }
 
 
-case class LeftOpenRightClosedInterval[T: Numeric](min: T, max: T) extends Interval[T]
+case class LeftOpenRightClosedInterval[T: Ordering](min: T, max: T) extends Interval[T]
 {
   def contains(t: T): Boolean = (min < t && t <= max)
   override def toString = s"($min,$max]"
 }
 object LeftOpenRightClosedInterval
 {
-  def apply[T: Numeric](minMax: (T,T)): LeftOpenRightClosedInterval[T] =
+  def apply[T: Ordering](minMax: (T,T)): LeftOpenRightClosedInterval[T] =
     LeftOpenRightClosedInterval(minMax._1,minMax._2)
 
-  implicit def format[T: Numeric: Format] =
+  implicit def format[T: Ordering: Format] =
     Json.format[LeftOpenRightClosedInterval[T]]
 }
 
 
-case class LeftClosedRightOpenInterval[T: Numeric](min: T, max: T) extends Interval[T]
+case class LeftClosedRightOpenInterval[T: Ordering](min: T, max: T) extends Interval[T]
 {
   def contains(t: T): Boolean = (min <= t && t < max)
   override def toString = s"[$min,$max)"
 }
 object LeftClosedRightOpenInterval
 {
-  def apply[T: Numeric](minMax: (T,T)): LeftClosedRightOpenInterval[T] =
+  def apply[T: Ordering](minMax: (T,T)): LeftClosedRightOpenInterval[T] =
     LeftClosedRightOpenInterval(minMax._1,minMax._2)
 
-  implicit def format[T: Numeric: Format] =
+  implicit def format[T: Ordering: Format] =
     Json.format[LeftClosedRightOpenInterval[T]]
 }
 
 
-case class LeftOpenInterval[T: Numeric](min: T) extends Interval[T]
+case class LeftOpenInterval[T: Ordering](min: T) extends Interval[T]
 {
   def contains(t: T): Boolean = (min < t)
   override def toString = s"($min,∞)"
 }
 object LeftOpenInterval
 {
-  implicit def format[T: Numeric: Format] =
+  implicit def format[T: Ordering: Format] =
     Json.format[LeftOpenInterval[T]]
 }
 
 
-case class LeftClosedInterval[T: Numeric](min: T) extends Interval[T]
+case class LeftClosedInterval[T: Ordering](min: T) extends Interval[T]
 {
   def contains(t: T): Boolean = (min <= t)
   override def toString = s"[$min,∞)"
 }
 object LeftClosedInterval
 {
-  implicit def format[T: Numeric: Format] =
+  implicit def format[T: Ordering: Format] =
     Json.format[LeftClosedInterval[T]]
 }
 
 
-case class RightOpenInterval[T: Numeric](max: T) extends Interval[T]
+case class RightOpenInterval[T: Ordering](max: T) extends Interval[T]
 {
   def contains(t: T): Boolean = (t < max)
   override def toString = s"(-∞,$max)"
 }
 object RightOpenInterval
 {
-  implicit def format[T: Numeric: Format] =
+  implicit def format[T: Ordering: Format] =
     Json.format[RightOpenInterval[T]]
 }
 
 
-case class RightClosedInterval[T: Numeric](max: T) extends Interval[T]
+case class RightClosedInterval[T: Ordering](max: T) extends Interval[T]
 {
   def contains(t: T): Boolean = (t <= max)
   override def toString = s"(-∞,$max]"
 }
 object RightClosedInterval
 {
-  implicit def format[T: Numeric: Format] =
+  implicit def format[T: Ordering: Format] =
     Json.format[RightClosedInterval[T]]
 }
 
 
-case class UnboundedInterval[T: Numeric]() extends Interval[T]
+case class UnboundedInterval[T: Ordering]() extends Interval[T]
 {
   def contains(t: T): Boolean = true
   override def toString = s"(-∞,∞)"
 }
 object UnboundedInterval
 {
-  implicit def format[T: Numeric: Format] =
+  implicit def format[T: Ordering: Format] =
     Format[UnboundedInterval[T]](
       Reads(js => JsSuccess(UnboundedInterval[T]() )),
       Writes(_ => JsObject.empty)
@@ -148,19 +148,19 @@ object Interval
 
   implicit class OrderOps[T](val t: T) extends AnyVal
   {
-    def <(u: T)(implicit o: Numeric[T])  = o.lt(t,u)
-    def <=(u: T)(implicit o: Numeric[T]) = o.lteq(t,u)
-    def >(u: T)(implicit o: Numeric[T])  = o.gt(t,u)
-    def >=(u: T)(implicit o: Numeric[T]) = o.gteq(t,u)
+    def <(u: T)(implicit o: Ordering[T])  = o.lt(t,u)
+    def <=(u: T)(implicit o: Ordering[T]) = o.lteq(t,u)
+    def >(u: T)(implicit o: Ordering[T])  = o.gt(t,u)
+    def >=(u: T)(implicit o: Ordering[T]) = o.gteq(t,u)
   }
 
-
+/*
   implicit class PlusMinusOps[T](val t: T) extends AnyVal
   {
-    def +-(m: T)(implicit num: Numeric[T]) =
+    def +-(m: T)(implicit num: Ordering[T]) =
       ClosedInterval(num.minus(t,m),num.plus(t,m))
   }
-
+*/
   implicit class IntervalOps[T](val t: T) extends AnyVal
   {
     def isIn(interval: Interval[T]) = interval contains t
@@ -168,7 +168,7 @@ object Interval
   }
 
 
-  implicit def format[T: Numeric: Format] =
+  implicit def format[T: Ordering: Format] =
     Format[Interval[T]](
       Reads(
         js =>
