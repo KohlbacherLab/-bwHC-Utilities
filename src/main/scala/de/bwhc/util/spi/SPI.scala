@@ -22,14 +22,12 @@ trait SPI[T] extends ServiceProviderInterface
 
 abstract class SPILoader[S <: ServiceProviderInterface]
 (
-//  val spi: Class[S]
   implicit val spi: ClassTag[S] 
 )
 {
   def getInstance: Try[S#Service] =
     Try {
       ServiceLoader.load(spi.runtimeClass.asInstanceOf[Class[S]])
-//      ServiceLoader.load(spi)
         .iterator
         .next
         .getInstance
@@ -55,7 +53,6 @@ trait EnvSPI[S[F[_]]] extends ServiceProviderInterfaceF
 
 abstract class SPILoaderF[S <: ServiceProviderInterfaceF]
 (
-//  val spi: Class[S]
   implicit val spi: ClassTag[S] 
 )
 {
@@ -63,7 +60,6 @@ abstract class SPILoaderF[S <: ServiceProviderInterfaceF]
   def getInstance[F[_]]: Try[S#Service[F]] =
     Try {
       ServiceLoader.load(spi.runtimeClass.asInstanceOf[Class[S]])
-//      ServiceLoader.load(spi)
         .iterator
         .next
         .getInstance[F]
