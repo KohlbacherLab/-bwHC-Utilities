@@ -155,6 +155,10 @@ object Validation
 
     val empty = new Empty{}
 
+    sealed trait NonEmpty
+
+    val nonEmpty = new NonEmpty{}
+
 
 
     def be(b: Boolean) = 
@@ -225,6 +229,9 @@ object Validation
       def apply(e: Empty)(implicit it: IsIterable[T]) = 
         condNel(t.asInstanceOf[Iterable[Any]].isEmpty, t, s"$t is not empty")
 
+      def apply(e: NonEmpty)(implicit it: IsIterable[T]) = 
+        condNel(t.asInstanceOf[Iterable[Any]].nonEmpty, t, s"$t is empty")
+
     }
 
 
@@ -245,12 +252,8 @@ object Validation
 
       def must[E](v: Validator[E,T]) = v(t)
 
-//      def must = MustBe(t)
-
-
       def mustNot[E](v: Validator[E,T]) = 
         condNel(v(t).isInvalid, t, s"$v failed for $t") 
-
 
       def should[E](v: Validator[E,T]) = t must v
 
