@@ -201,10 +201,17 @@ object Validation
     def lessThan[T](u: T)(implicit ord: Ordering[T]) = 
       (t: T) => condNel(ord.lt(t,u), t, s"$t not less than $u")
 
+    def lessThanOrEqual[T](u: T)(implicit ord: Ordering[T]) = 
+      (t: T) => condNel(ord.lteq(t,u), t, s"$t not less than or equal to $u")
+
     def before[T](u: T)(implicit ord: Ordering[T]) = lessThan(u)
 
     def greaterThan[T](u: T)(implicit ord: Ordering[T]) = 
       (t: T) => condNel(ord.gt(t,u), t, s"$t not greater than $u")
+
+    def greaterThanOrEqual[T](u: T)(implicit ord: Ordering[T]) = 
+      (t: T) => condNel(ord.gteq(t,u), t, s"$t not greater than or equal to $u")
+
 
     def after[T](u: T)(implicit ord: Ordering[T]) = greaterThan(u)
 
@@ -215,6 +222,9 @@ object Validation
     def negative[T](implicit num: Numeric[T]) =
       lessThan(num.zero)
 
+    def nonNegative[T](implicit num: Numeric[T]) =
+      greaterThanOrEqual(num.zero)
+      
 
 
     case class MustBe[T](t: T) extends AnyVal
