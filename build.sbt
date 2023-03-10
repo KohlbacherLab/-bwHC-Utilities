@@ -2,9 +2,9 @@
 
 
 name := "utils"
-organization in ThisBuild := "de.bwhc"
-scalaVersion in ThisBuild := "2.13.8"
-version in ThisBuild := "1.0-SNAPSHOT"
+ThisBuild / organization := "de.bwhc"
+ThisBuild / scalaVersion := "2.13.8"
+ThisBuild / version := "1.0-SNAPSHOT"
 
 
 //-----------------------------------------------------------------------------
@@ -45,10 +45,9 @@ lazy val compilerOptions = Seq(
 
 lazy val commonSettings = Seq(
   scalacOptions ++= compilerOptions,
-  resolvers ++= Seq(
-    "Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository",
-    Resolver.sonatypeRepo("releases"),
-    Resolver.sonatypeRepo("snapshots")
-  )
+  resolvers ++=
+    Seq("Local Maven Repository" at "file://" + Path.userHome.absolutePath + "/.m2/repository") ++
+    Resolver.sonatypeOssRepos("releases") ++
+    Resolver.sonatypeOssRepos("snapshots")
 )
 

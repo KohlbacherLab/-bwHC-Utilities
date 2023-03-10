@@ -2,9 +2,9 @@ package de.bwhc.util.spi
 
 
 import java.util.ServiceLoader
-
-import scala.util.Try
+import scala.util.{Try,Success,Failure}
 import scala.reflect.ClassTag
+import de.bwhc.util.Logging
 
 
 trait ServiceProviderInterface
@@ -24,6 +24,7 @@ abstract class SPILoader[S <: ServiceProviderInterface]
 (
   implicit val spi: ClassTag[S] 
 )
+extends Logging
 {
   def getInstance: Try[S#Service] =
     Try {
@@ -32,6 +33,16 @@ abstract class SPILoader[S <: ServiceProviderInterface]
         .next
         .getInstance
     }
+    .recoverWith {
+      case t =>
+        log.warn(
+          s"""Failed to load Service Provider Interface instance for ${spi.runtimeClass.getName}.
+          Unless handled properly with a fallback option in the client component, this is the cause of any occurring exception!"""
+        )
+        Failure(t)
+    }
+    
+
 
 }
 
@@ -55,6 +66,7 @@ abstract class SPILoaderF[S <: ServiceProviderInterfaceF]
 (
   implicit val spi: ClassTag[S] 
 )
+extends Logging
 {
 
   def getInstance[F[_]]: Try[S#Service[F]] =
@@ -63,6 +75,14 @@ abstract class SPILoaderF[S <: ServiceProviderInterfaceF]
         .iterator
         .next
         .getInstance[F]
+    }
+    .recoverWith {
+      case t =>
+        log.warn(
+          s"""Failed to load Service Provider Interface instance for ${spi.runtimeClass.getName}.
+          Unless handled properly with a fallback option in the client component, this is the cause of any occurring exception!"""
+        )
+        Failure(t)
     }
 
 }
